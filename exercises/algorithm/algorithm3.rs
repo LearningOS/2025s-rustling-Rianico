@@ -1,12 +1,25 @@
 /*
-	sort
-	This problem requires you to implement a sorting algorithm
-	you can use bubble sorting, insertion sorting, heap sorting, etc.
+    sort
+    This problem requires you to implement a sorting algorithm
+    you can use bubble sorting, insertion sorting, heap sorting, etc.
 */
-// I AM NOT DONE
 
-fn sort<T>(array: &mut [T]){
-	//TODO
+fn sort<T: std::cmp::Ord>(array: &mut [T]) {
+    if array.len() <= 0 {
+        return;
+    }
+    let pivot = array.len() - 1;
+    let mut left = 0;
+    for right in 0..pivot {
+        if array[right] < array[pivot] {
+            array.swap(left, right);
+            left += 1;
+        }
+    }
+    array.swap(left, pivot);
+    // pivot don't need to take part in next sorting
+    sort(&mut array[..left]);
+    sort(&mut array[left + 1..]);
 }
 #[cfg(test)]
 mod tests {
@@ -18,13 +31,13 @@ mod tests {
         sort(&mut vec);
         assert_eq!(vec, vec![19, 37, 46, 57, 64, 73, 75, 91]);
     }
-	#[test]
+    #[test]
     fn test_sort_2() {
         let mut vec = vec![1];
         sort(&mut vec);
         assert_eq!(vec, vec![1]);
     }
-	#[test]
+    #[test]
     fn test_sort_3() {
         let mut vec = vec![99, 88, 77, 66, 55, 44, 33, 22, 11];
         sort(&mut vec);

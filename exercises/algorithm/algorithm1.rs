@@ -2,13 +2,12 @@
     single linked list merge
     This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
 use std::vec::*;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, PartialOrd)]
 struct Node<T> {
     val: T,
     next: Option<NonNull<Node<T>>>,
@@ -19,20 +18,20 @@ impl<T> Node<T> {
         Node { val: t, next: None }
     }
 }
-#[derive(Debug)]
+#[derive(Debug, PartialEq, PartialOrd)]
 struct LinkedList<T> {
     length: u32,
     start: Option<NonNull<Node<T>>>,
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: std::cmp::PartialOrd + std::cmp::PartialEq> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: std::cmp::PartialOrd + std::cmp::PartialEq> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -69,11 +68,30 @@ impl<T> LinkedList<T> {
 
     pub fn merge(list_a: LinkedList<T>, list_b: LinkedList<T>) -> Self {
         //TODO
-        Self {
+        let mut res = Self {
             length: 0,
             start: None,
             end: None,
+        };
+        let (mut head_a, mut head_b) = (list_a.start, list_b.start);
+        unsafe {
+            while head_a != None && head_b != None {
+                let (mut head, mut node) = if head_a.unwrap().as_ref() < head_b.unwrap().as_ref() {
+                    let mut node = head_a.take().unwrap().read();
+                    (&mut head_a, node)
+                } else {
+                    let mut node = head_b.take().unwrap().read();
+                    (&mut head_b, node)
+                };
+                (*head) = node.next.take();
+                res.add(node.val);
+            }
+            res.end.map(|mut ptr| {
+                (*ptr.as_mut()).next = head_a.or(head_b);
+                ptr
+            });
         }
+        res
     }
 }
 
@@ -166,4 +184,3 @@ mod tests {
         }
     }
 }
-
