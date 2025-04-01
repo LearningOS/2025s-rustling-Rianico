@@ -6,7 +6,7 @@
 fn main() {
     let mut res = 42;
     let option = Some(12);
-    while let Some(x) = option {
+    for x in option.iter() {
         res += x;
     }
     println!("{}", res);
